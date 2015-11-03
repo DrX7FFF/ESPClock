@@ -14,7 +14,10 @@
 #define MAX7219_REG_SHUTDOWN     0xC
 #define MAX7219_REG_DISPLAYTEST  0xF
 
+#define MOSI_PIN 13
+#define CLK_PIN 14
 #define CS_PIN 15
+
 
 byte hour;
 byte minute;
@@ -42,9 +45,17 @@ const byte animwifiData[][8] = {
 
 void sendByte (const byte reg, const byte data) {
     digitalWrite(CS_PIN,LOW);
-    SPI.transfer (reg);
-    SPI.transfer (data);
-    digitalWrite (CS_PIN, HIGH);   
+    for(int i = 0; i<8; i++){
+      digitalWrite(MOSI_PIN,(reg<<i)&0x80);
+      digitalWrite(CLK_PIN,HIGH);
+      digitalWrite(CLK_PIN,LOW);
+    }
+    for(int i = 0; i<8; i++){
+      digitalWrite(MOSI_PIN,(data<<i)&0x80);
+      digitalWrite(CLK_PIN,HIGH);
+      digitalWrite(CLK_PIN,LOW);
+    }
+    digitalWrite (CS_PIN, HIGH);
 }
 
 void animWifi(){
@@ -69,10 +80,9 @@ void MatrixShow(){
 }
 
 void MatrixInit(){
+  pinMode(MOSI_PIN, OUTPUT);
+  pinMode(CLK_PIN, OUTPUT);
   pinMode(CS_PIN, OUTPUT);
-  SPI.begin ();
-  SPI.setDataMode(SPI_MODE0);
-  SPI.setClockDivider(SPI_CLOCK_DIV128);
   sendByte (MAX7219_REG_SCANLIMIT, 7);   // show all 8 digits
   sendByte (MAX7219_REG_DECODEMODE, 0);  // using an led matrix (not digits)
   sendByte (MAX7219_REG_DISPLAYTEST, 0); // no display test

@@ -1,5 +1,4 @@
 #include <Ticker.h>
-#include <SPI.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
@@ -13,8 +12,6 @@
 const char* host     = "esp8266-ota";
 const uint16_t aport = 8266;
 
-//WiFiServer TelnetServer(aport);
-//WiFiClient Telnet;
 WiFiUDP OTA;
 
 byte seconde;
@@ -41,10 +38,12 @@ void toto(){
       MatrixShow();
     }
   }
+  /*
   if (seconde & 1)
     MatrixIntensity(5 - myTicks);
   else
     MatrixIntensity(myTicks);
+    */
 }
 
 Ticker myTick;
@@ -52,7 +51,7 @@ Ticker myTick;
 void setup() {
   Serial.begin(115200); // For debugging output
   Serial.println("");
-  Serial.println("ESPClock V3");
+  Serial.println("ESPClock V4");
   Serial.printf("Sketch size: %u\n", ESP.getSketchSize());
   Serial.printf("Free size: %u\n", ESP.getFreeSketchSpace());
   
@@ -75,8 +74,6 @@ void setup() {
   MDNS.begin(host);
   MDNS.addService("arduino", "tcp", aport);
   OTA.begin(aport);
- // TelnetServer.begin();
- // TelnetServer.setNoDelay(true);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
   
