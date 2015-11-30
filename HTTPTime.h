@@ -20,7 +20,6 @@ byte GetTime(byte* hour, byte* minute, byte* second){
     if (client.available())
       break;
     delay(100);
-    Serial.print(".");
   }
   while(client.available() && !client.readStringUntil('\n').equals("\r")){
   }
