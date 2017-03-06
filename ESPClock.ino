@@ -1,4 +1,4 @@
-// OTA : generic module / 80 Mhz / QIO / 40 MHz / 1M (64kb) / 230400
+// OTA : generic module / 80 Mhz / QIO / 40 MHz / 512k (0kb) / 230400
 #include <Ticker.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
@@ -11,6 +11,7 @@
 #include "PrivateWifi.h"
 //const char* ssid     = "....";
 //const char* password = "....";
+const char* host = "ESP_CLOCK";
 
 byte seconde;
 byte myTicks;
@@ -18,7 +19,7 @@ byte initialized;
 // Use WiFiClient class to create TCP connections
 
 // Passer en seconde
-void toto(){
+void myeventtick(){
   myTicks++;
   if (myTicks == 5) {
     myTicks = 0;
@@ -57,9 +58,10 @@ void setup() {
   animwifiIndex = 2;
   animWifi();
 
+  ArduinoOTA.setHostname(host);
   ArduinoOTA.begin();
   
-  myTick.attach_ms(200, toto);
+  myTick.attach_ms(200, myeventtick);
 }
 
 int delayloop = 0;
