@@ -21,6 +21,9 @@
 
 byte hour;
 byte minute;
+byte second;
+
+byte screen[16];
 
 const byte number[][3] = { 
   { 14, 17, 14}, //0
@@ -44,7 +47,6 @@ const byte animwifiData[][8] = {
 };
 
 void sendByte (const byte reg, const byte data) {
-    digitalWrite(CS_PIN,LOW);
     for(int i = 0; i<8; i++){
       digitalWrite(MOSI_PIN,(reg<<i)&0x80);
       digitalWrite(CLK_PIN,HIGH);
@@ -55,42 +57,64 @@ void sendByte (const byte reg, const byte data) {
       digitalWrite(CLK_PIN,HIGH);
       digitalWrite(CLK_PIN,LOW);
     }
+}
+void sendByte2 (const byte reg, const byte data1, const byte data2) {
+    digitalWrite(CS_PIN,LOW);
+    sendByte(reg, data2);
+    sendByte(reg, data1);
     digitalWrite (CS_PIN, HIGH);
+}
+
+void sendScreen() {
+    for(int i=0; i<8; i++)
+      sendByte2(i+1,screen[i], screen[i+8]);
 }
 
 void animWifi(){
   animwifiIndex=(animwifiIndex+1)%4;
   for(byte i=0;i<8;i++){
-    sendByte(8-i,animwifiData[animwifiIndex][i]);
+    sendByte2(8-i,animwifiData[animwifiIndex][i],0);
   }
 }
 
 void MatrixShow(){
-  byte unite = minute % 10;
-  byte dixaine = (minute/10)%10;
-  byte hour_12 = (hour+11)%12+1;
-  sendByte(8,number[dixaine][0] + 64*(hour_12>6)+128*(hour_12>0));
-  sendByte(7,number[dixaine][1] + 64*(hour_12>7)+128*(hour_12>1));
-  sendByte(6,number[dixaine][2] + 64*(hour_12>8)+128*(hour_12>2));
-  sendByte(5,0);
-  sendByte(4,number[unite][0] + 64*(hour_12>9)+128*(hour_12>3));
-  sendByte(3,number[unite][1] + 64*(hour_12>10)+128*(hour_12>4));
-  sendByte(2,number[unite][2] + 64*(hour_12>11)+128*(hour_12>5));
-  sendByte(1,0);
+  byte min_unite = minute % 10;
+  byte min_dixaine = (minute/10)%10;
+  byte hour_unite = hour % 10;
+  byte hour_dixaine = (hour/10)%10;
+  
+  screen[15] = number[hour_dixaine][0] + 64*(second>15 && second<46)+128*(second>0 && second<31);
+  screen[14] = number[hour_dixaine][1] + 64*(second>16 && second<47)+128*(second>1 && second<32);
+  screen[13] = number[hour_dixaine][2] + 64*(second>17 && second<48)+128*(second>2 && second<33);
+  screen[12] = 0                       + 64*(second>18 && second<49)+128*(second>3 && second<34);
+  screen[11] = number[hour_unite][0]   + 64*(second>19 && second<50)+128*(second>4 && second<35);
+  screen[10] = number[hour_unite][1]   + 64*(second>20 && second<51)+128*(second>5 && second<36);
+  screen[ 9] = number[hour_unite][2]   + 64*(second>21 && second<52)+128*(second>6 && second<37);
+  screen[ 8] = 0                       + 64*(second>22 && second<53)+128*(second>7 && second<38);
+  screen[ 7] = number[min_dixaine][0]  + 64*(second>23 && second<54)+128*(second> 8 && second<39);
+  screen[ 6] = number[min_dixaine][1]  + 64*(second>24 && second<55)+128*(second> 9 && second<40);
+  screen[ 5] = number[min_dixaine][2]  + 64*(second>25 && second<56)+128*(second>10 && second<41);
+  screen[ 4] = 0                       + 64*(second>26 && second<57)+128*(second>11 && second<42);
+  screen[ 3] = number[min_unite][0]    + 64*(second>27 && second<58)+128*(second>12 && second<43);
+  screen[ 2] = number[min_unite][1]    + 64*(second>28 && second<59)+128*(second>13 && second<44);
+  screen[ 1] = number[min_unite][2]    + 64*(second>29 && second<60)+128*(second>14 && second<45);
+  screen[ 0] = 0;
+
+  sendScreen();
 }
 
 void MatrixInit(){
   pinMode(MOSI_PIN, OUTPUT);
   pinMode(CLK_PIN, OUTPUT);
   pinMode(CS_PIN, OUTPUT);
-  sendByte (MAX7219_REG_SCANLIMIT, 7);   // show all 8 digits
-  sendByte (MAX7219_REG_DECODEMODE, 0);  // using an led matrix (not digits)
-  sendByte (MAX7219_REG_DISPLAYTEST, 0); // no display test
-  sendByte (MAX7219_REG_INTENSITY, 4);   // character intensity: range: 0 to 15
-  sendByte (MAX7219_REG_SHUTDOWN, 1);    // not in shutdown mode (ie. start it up)
+  sendByte2 (MAX7219_REG_SCANLIMIT, 7, 7);   // show all 8 digits
+  sendByte2 (MAX7219_REG_DECODEMODE, 0, 0);  // using an led matrix (not digits)
+  sendByte2 (MAX7219_REG_DISPLAYTEST, 0, 0); // no display test
+  sendByte2 (MAX7219_REG_INTENSITY, 4, 4);   // character intensity: range: 0 to 15
+  sendByte2 (MAX7219_REG_SHUTDOWN, 1, 1);    // not in shutdown mode (ie. start it up)
 }
 
 void MatrixIntensity(byte intensity){
-  sendByte (MAX7219_REG_INTENSITY, intensity & 0xF);   // character intensity: range: 0 to 15  
+  sendByte2 (MAX7219_REG_INTENSITY, intensity & 0xF, intensity & 0xF);   // character intensity: range: 0 to 15  
 }
 

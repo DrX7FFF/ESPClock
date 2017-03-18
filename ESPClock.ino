@@ -11,9 +11,9 @@
 #include "PrivateWifi.h"
 //const char* ssid     = "....";
 //const char* password = "....";
-const char* host = "ESP_CLOCK";
+//const char* host = "ESP_CLOCK";
 
-byte seconde;
+//byte second;
 byte myTicks;
 byte initialized;
 // Use WiFiClient class to create TCP connections
@@ -23,9 +23,9 @@ void myeventtick(){
   myTicks++;
   if (myTicks == 5) {
     myTicks = 0;
-    seconde++;
-    if (seconde == 60) {
-      seconde = 0;
+    second++;
+    if (second == 60) {
+      second = 0;
       minute++;
       if (minute == 60) {
         minute = 0;
@@ -34,10 +34,10 @@ void myeventtick(){
           hour = 0;
         }
       }
-      MatrixShow();
     }
+    MatrixShow();
   }
-  if (seconde & 1)
+  if (second & 1)
     MatrixIntensity(5 - myTicks);
   else
     MatrixIntensity(myTicks);
@@ -58,7 +58,7 @@ void setup() {
   animwifiIndex = 2;
   animWifi();
 
-  ArduinoOTA.setHostname(host);
+//  ArduinoOTA.setHostname(host);
   ArduinoOTA.begin();
   
   myTick.attach_ms(200, myeventtick);
@@ -70,7 +70,7 @@ void loop() {
   ArduinoOTA.handle();
 
   if (delayloop == 0){
-    initialized = GetTime(&hour, &minute, &seconde);
+    initialized = GetTime(&hour, &minute, &second);
     if (initialized == HTTPTime_OK) {
       MatrixShow();
       delayloop = 180000; //3 min
