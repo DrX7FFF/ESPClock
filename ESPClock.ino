@@ -14,14 +14,14 @@
 //const char* host = "ESP_CLOCK";
 
 //byte second;
-byte myTicks;
+
 byte initialized;
 // Use WiFiClient class to create TCP connections
 
 // Passer en seconde
 void myeventtick(){
   myTicks++;
-  if (myTicks == 5) {
+  if (myTicks == 10) {
     myTicks = 0;
     second++;
     if (second == 60) {
@@ -35,12 +35,14 @@ void myeventtick(){
         }
       }
     }
-    MatrixShow();
   }
+  MatrixShow();
+  /*
   if (second & 1)
     MatrixIntensity(5 - myTicks);
   else
     MatrixIntensity(myTicks);
+    */
 }
 
 Ticker myTick;
@@ -61,7 +63,7 @@ void setup() {
 //  ArduinoOTA.setHostname(host);
   ArduinoOTA.begin();
   
-  myTick.attach_ms(200, myeventtick);
+  myTick.attach_ms(100, myeventtick);
 }
 
 int delayloop = 0;
