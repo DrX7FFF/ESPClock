@@ -75,11 +75,11 @@ void loop() {
     initialized = GetTime(&hour, &minute, &second);
     if (initialized == HTTPTime_OK) {
       MatrixShow();
-      delayloop = 180000; //3 min
+      delayloop = 36000; //60 min
     }
     else
-      delayloop = 30000; //30s
+      delayloop = 300; //30s
   }
   delayloop--;
-  delay(1);
+  delay(100);
 }
