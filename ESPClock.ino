@@ -1,48 +1,20 @@
 // OTA : generic module / 80 Mhz / QIO / 40 MHz / 512k (0kb) / 230400
+byte myTicks;
+
 #include <Ticker.h>
 #include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
-#include <WiFiUdp.h>
 #include <ArduinoOTA.h>
-#include <ArduinoJson.h>
 #include "Afficheur.h"
-#include "HTTPTime.h"
+#include <TimeLib.h>
+#include <NtpClientLib.h>
 
 #include "PrivateWifi.h"
-//const char* ssid     = "....";
-//const char* password = "....";
-//const char* host = "ESP_CLOCK";
+// #define WIFI_SSID "...."
+// #define WIFI_PASSWD "...."
 
-//byte second;
-
-byte initialized;
-// Use WiFiClient class to create TCP connections
-
-// Passer en seconde
 void myeventtick(){
-  myTicks++;
-  if (myTicks == 10) {
-    myTicks = 0;
-    second++;
-    if (second == 60) {
-      second = 0;
-      minute++;
-      if (minute == 60) {
-        minute = 0;
-        hour++;
-        if (hour == 24) {
-          hour = 0;
-        }
-      }
-    }
-  }
+  myTicks = (myTicks+1) % 10;
   MatrixShow();
-  /*
-  if (second & 1)
-    MatrixIntensity(5 - myTicks);
-  else
-    MatrixIntensity(myTicks);
-    */
 }
 
 Ticker myTick;
@@ -52,7 +24,7 @@ void setup() {
   animWifi();
   // Set WiFi to station mode and disconnect from an AP if it was previously connected
   WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWD);
   while (WiFi.status() != WL_CONNECTED) {
     delay(100);
     animWifi();
@@ -60,26 +32,15 @@ void setup() {
   animwifiIndex = 2;
   animWifi();
 
-//  ArduinoOTA.setHostname(host);
+  NTP.begin("pool.ntp.org", 1, true);
+  NTP.setInterval(30,3600);
+
   ArduinoOTA.begin();
   
   myTick.attach_ms(100, myeventtick);
 }
 
-int delayloop = 0;
-
 void loop() {
   ArduinoOTA.handle();
-
-  if (delayloop == 0){
-    initialized = GetTime(&hour, &minute, &second);
-    if (initialized == HTTPTime_OK) {
-      MatrixShow();
-      delayloop = 36000; //60 min
-    }
-    else
-      delayloop = 300; //30s
-  }
-  delayloop--;
-  delay(100);
+  delay(10);
 }

@@ -1,0 +1,40 @@
+Avant
+
+Compilation version 1 avec PlatformIO
+
+text	   data	    bss	    dec	    hex	filename
+242024	   3344	  29928	 275296	  43360	.pioenvs\esp01\firmware.elf
+ [SUCCESS] Took 21.07 seconds 
+
+
+Verison Arduino
+Le croquis utilise 245431 octets (49%) de l'espace de stockage de programmes. Le maximum est de 499696 octets.
+Les variables globales utilisent 33324 octets (40%) de mémoire dynamique, ce qui laisse 48596 octets pour les variables locales. Le maximum est de 81920 octets.
+
+
+Après
+
+text	   data	    bss	    dec	    hex	filename
+244376	   3432	  30232	 278040	  43e18	.pioenvs\esp01\firmware.elf
+ [SUCCESS] Took 25.47 seconds 
+
+Le croquis utilise 247867 octets (49%) de l'espace de stockage de programmes. Le maximum est de 499696 octets.
+Les variables globales utilisent 33704 octets (41%) de mémoire dynamique, ce qui laisse 48216 octets pour les variables locales. Le maximum est de 81920 octets.
+
+Après 2
+text	   data	    bss	    dec	    hex	filename
+244360	   3424	  30232	 278016	  43e00	.pioenvs\esp01\firmware.elf
+ [SUCCESS] Took 22.59 seconds 
+
+Le croquis utilise 247843 octets (49%) de l'espace de stockage de programmes. Le maximum est de 499696 octets.
+Les variables globales utilisent 33696 octets (41%) de mémoire dynamique, ce qui laisse 48224 octets pour les variables locales. Le maximum est de 81920 octets.
+
+
+
+Le croquis utilise 242135 octets (48%) de l'espace de stockage de programmes. Le maximum est de 499696 octets.
+Les variables globales utilisent 33044 octets (40%) de mémoire dynamique, ce qui laisse 48876 octets pour les variables locales. Le maximum est de 81920 octets.
++
+Le croquis utilise 246507 octets (49%) de l'espace de stockage de programmes. Le maximum est de 499696 octets.
+Les variables globales utilisent 33616 octets (41%) de mémoire dynamique, ce qui laisse 48304 octets pour les variables locales. Le maximum est de 81920 octets.
+
+!

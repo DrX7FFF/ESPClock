@@ -20,10 +20,7 @@
 
 #define INTENSITY 7
 
-byte hour;
-byte minute;
-byte second;
-byte myTicks;
+#include <TimeLib.h>
 
 byte screen[16];
 
@@ -90,10 +87,12 @@ void animWifi(){
 
 void MatrixShow(){
   int pacmanPos;
-  byte min_unite = minute % 10;
-  byte min_dixaine = (minute/10)%10;
-  byte hour_unite = hour % 10;
-  byte hour_dixaine = (hour/10)%10;
+  time_t t = now();
+  byte min_unite = minute(t) % 10;
+  byte min_dixaine = (minute(t)/10)%10;
+  byte hour_unite = hour(t) % 10;
+  byte hour_dixaine = (hour(t)/10)%10;
+  byte sec = second(t);
   
   screen[15] = number[hour_dixaine][0];
   screen[14] = number[hour_dixaine][1];
@@ -112,7 +111,7 @@ void MatrixShow(){
   screen[ 1] = number[min_unite][2];
   screen[ 0] = 0;
 
-  if (second == 57 && myTicks == 5)
+  if (sec == 57 && myTicks == 5)
     animPacmanPos = 0;
 
   for (byte i=0; i<6; i++){
@@ -125,21 +124,21 @@ void MatrixShow(){
   if (animPacmanIndex==0)
     animPacmanPos++;
   
-  screen[15] += 64*(second>15 && second<46)+128*(second>0 && second<31);
-  screen[14] += 64*(second>16 && second<47)+128*(second>1 && second<32);
-  screen[13] += 64*(second>17 && second<48)+128*(second>2 && second<33);
-  screen[12] += 64*(second>18 && second<49)+128*(second>3 && second<34);
-  screen[11] += 64*(second>19 && second<50)+128*(second>4 && second<35);
-  screen[10] += 64*(second>20 && second<51)+128*(second>5 && second<36);
-  screen[ 9] += 64*(second>21 && second<52)+128*(second>6 && second<37);
-  screen[ 8] += 64*(second>22 && second<53)+128*(second>7 && second<38);
-  screen[ 7] += 64*(second>23 && second<54)+128*(second> 8 && second<39);
-  screen[ 6] += 64*(second>24 && second<55)+128*(second> 9 && second<40);
-  screen[ 5] += 64*(second>25 && second<56)+128*(second>10 && second<41);
-  screen[ 4] += 64*(second>26 && second<57)+128*(second>11 && second<42);
-  screen[ 3] += 64*(second>27 && second<58)+128*(second>12 && second<43);
-  screen[ 2] += 64*(second>28 && second<59)+128*(second>13 && second<44);
-  screen[ 1] += 64*(second>29 && second<60)+128*(second>14 && second<45);
+  screen[15] += 64*(sec>15 && sec<46)+128*(sec>0 && sec<31);
+  screen[14] += 64*(sec>16 && sec<47)+128*(sec>1 && sec<32);
+  screen[13] += 64*(sec>17 && sec<48)+128*(sec>2 && sec<33);
+  screen[12] += 64*(sec>18 && sec<49)+128*(sec>3 && sec<34);
+  screen[11] += 64*(sec>19 && sec<50)+128*(sec>4 && sec<35);
+  screen[10] += 64*(sec>20 && sec<51)+128*(sec>5 && sec<36);
+  screen[ 9] += 64*(sec>21 && sec<52)+128*(sec>6 && sec<37);
+  screen[ 8] += 64*(sec>22 && sec<53)+128*(sec>7 && sec<38);
+  screen[ 7] += 64*(sec>23 && sec<54)+128*(sec> 8 && sec<39);
+  screen[ 6] += 64*(sec>24 && sec<55)+128*(sec> 9 && sec<40);
+  screen[ 5] += 64*(sec>25 && sec<56)+128*(sec>10 && sec<41);
+  screen[ 4] += 64*(sec>26 && sec<57)+128*(sec>11 && sec<42);
+  screen[ 3] += 64*(sec>27 && sec<58)+128*(sec>12 && sec<43);
+  screen[ 2] += 64*(sec>28 && sec<59)+128*(sec>13 && sec<44);
+  screen[ 1] += 64*(sec>29 && sec<60)+128*(sec>14 && sec<45);
   //screen[ 0] += 0;
 
   sendScreen();
