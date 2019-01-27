@@ -22,12 +22,14 @@ WiFiServer debugServer(DEBUG_PORT);
 WiFiClient debugClient;
 
 //#define BOSEMON_NAME "BOSEMON"
-#define BOSEMON_NAME "Portable"
+#define BOSEMON_NAME "PORTABLE"
 #define BOSEMON_PORT 9978
 WiFiClient boseClient;
+const char* boseName = "Portable";
 
 // Enter the IP address of the server you're connecting to:
-IPAddress server(192, 168, 1, 23);
+//IPAddress boseIP(192, 168, 1, 23); //Portable
+IPAddress boseIP(192, 168, 1, 99);
 
 void myeventtick(){
   myTicks = (myTicks+1) % 10;
@@ -61,37 +63,55 @@ void setup() {
   myTick.attach_ms(100, myeventtick);
 }
 
+#define WATCHDOG 30000
+unsigned long previousMillis;
+
 void loop() {
+  uint8_t bosePowerChange;
+  uint8_t boseVolumeChange;
+  uint8_t recvBuf[3];
   ArduinoOTA.handle();
 
   if(!debugClient.connected()) { // if client not connected
     debugClient = debugServer.available(); // wait for it to connect
-    if (debugClient.connected()){
-      debugClient.println("Debug connected");
-      debugClient.println(sizeof(animBose));
+    if (debugClient.connected())
+      debugClient.println("Welcome on Debug");
+  }
+
+  if (!boseClient.connected() || ( millis() - previousMillis > WATCHDOG )) {
+    boseClient.stop();
+//    connected2Bose = boseClient.connect(boseName, BOSEMON_PORT);
+    connected2Bose = boseClient.connect(boseIP, BOSEMON_PORT);
+    previousMillis = millis();
+  }
+  else{
+    if (boseClient.available() >= sizeof(recvBuf)) {
+      boseClient.read(recvBuf,sizeof(recvBuf));
+      if (recvBuf[0] != 0x80)
+          boseClient.stop();
+      else {
+        bosePowerChange = 0;
+        boseVolumeChange = 0;
+        if (boseOn != (recvBuf[1] & B00000001)){
+          boseOn = (recvBuf[1] & B00000001);
+          bosePowerChange = boseOn;
+        }
+        if (boseError != (recvBuf[1] & B00000010))
+          boseError=(recvBuf[1] & B00000010);
+
+        if (boseVolume != recvBuf[2]){
+          boseVolume = recvBuf[2];
+          boseVolumeChange = 1;
+        }
+      }
+      if (bosePowerChange)
+        MatrixShow(2);
+      else
+        if (boseVolumeChange)
+          MatrixShow(1);
+      previousMillis = millis();
     }
   }
 
-//  if (boseClient.
-// if the server's disconnected, stop the client:
-  if (!boseClient.connected()) {
-    error = 1;
-    debugClient.println("Client disconnected");
-    boseClient.stop();
-    boseClient.connect(server, BOSEMON_PORT);
-  }
-  else
-    error = 0;
-
-  if (boseClient.available()) {
-    char c = boseClient.read();
-    debugClient.print(c);
-    volume=74;
-    if (c=='q')
-      MatrixShow(2);
-    else
-      MatrixShow(1);
-  }
-
-  delay(10);  
+  delay(10);
 }

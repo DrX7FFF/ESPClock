@@ -36,8 +36,10 @@ const byte animPacman[][6] = {
 #define ONBOSE_INIT 0x20
 uint8_t onBose;
 
-uint8_t error;
-uint8_t volume;
+uint8_t connected2Bose=0;
+uint8_t boseError=0;
+uint8_t boseOn=0;
+uint8_t boseVolume;
 uint8_t showAnimBose;
 uint8_t animBosePos;
 const byte animBose[] = {
@@ -96,6 +98,15 @@ const byte iconVolume[] = {
   B00000000
 };
 
+const byte iconMute[] = {
+  B00100010,
+  B00010100,
+  B00001000,
+  B00010100,
+  B00100010
+};
+
+
 const byte number[][3] = { 
   { 14, 17, 14}, //0
   {  0, 31,  0}, //1
@@ -149,9 +160,6 @@ void animWifi(){
 }
 
 void MatrixShowVolume(){
-  byte vol_unite = volume % 10;
-  byte vol_dixaine = (volume/10)%10;
-
   screen[15] = iconVolume[0];
   screen[14] = iconVolume[1];
   screen[13] = iconVolume[2];
@@ -160,14 +168,29 @@ void MatrixShowVolume(){
   screen[10] = iconVolume[5];
   screen[ 9] = iconVolume[6];
   screen[ 8] = iconVolume[7];
-  screen[ 7] = 0;
-  screen[ 6] = number[vol_dixaine][0]<<1;
-  screen[ 5] = number[vol_dixaine][1]<<1;
-  screen[ 4] = number[vol_dixaine][2]<<1;
-  screen[ 3] = 0;
-  screen[ 2] = number[vol_unite][0]<<1;
-  screen[ 1] = number[vol_unite][1]<<1;
-  screen[ 0] = number[vol_unite][2]<<1;
+  if (boseVolume == 0xFF){
+    screen[ 7] = 0;
+    screen[ 6] = iconMute[0];
+    screen[ 5] = iconMute[1];
+    screen[ 4] = iconMute[2];
+    screen[ 3] = iconMute[3];
+    screen[ 2] = iconMute[4];
+    screen[ 1] = 0;
+    screen[ 0] = 0;    
+  }
+  else{
+    byte vol_unite = boseVolume % 10;
+    byte vol_dixaine = (boseVolume/10)%10;
+
+    screen[ 7] = 0;
+    screen[ 6] = number[vol_dixaine][0]<<1;
+    screen[ 5] = number[vol_dixaine][1]<<1;
+    screen[ 4] = number[vol_dixaine][2]<<1;
+    screen[ 3] = 0;
+    screen[ 2] = number[vol_unite][0]<<1;
+    screen[ 1] = number[vol_unite][1]<<1;
+    screen[ 0] = number[vol_unite][2]<<1;
+  }
 }
 
 void MatrixShowBose(){
@@ -197,7 +220,7 @@ void MatrixShowTime(){
   byte hour_dixaine = (hour(t)/10)%10;
   byte sec = second(t);
   
-  screen[15] = (error && (myTicks<3))?B00100000:0;
+  screen[15] = ((connected2Bose==0) && (myTicks<2) || ((boseError!=0) && (myTicks<5)) || ((connected2Bose!=0) && (boseError==0) && (boseOn!=0)))?B00100000:0;
   screen[14] = number[hour_dixaine][0];
   screen[13] = number[hour_dixaine][1];
   screen[12] = number[hour_dixaine][2];
@@ -263,9 +286,13 @@ void MatrixShow(const uint8_t BoseMode = 0){
       MatrixShowVolume();
       onBose--;
     }
+    if (onBose <= INTENSITY)
+      sendByte2 (MAX7219_REG_INTENSITY, onBose, onBose);
   }
-  else
+  else{
+    sendByte2 (MAX7219_REG_INTENSITY, INTENSITY, INTENSITY);
     MatrixShowTime();
+  }
 
   sendScreen();
 }
