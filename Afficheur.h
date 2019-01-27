@@ -33,6 +33,69 @@ const byte animPacman[][6] = {
   { 10, 27, 31, 31, 14, 0}
 };
 
+#define ONBOSE_INIT 0x20
+uint8_t onBose;
+
+uint8_t error;
+uint8_t volume;
+uint8_t showAnimBose;
+uint8_t animBosePos;
+const byte animBose[] = {
+  B00000001,
+  B00000001,
+  B00000001,
+  B00001111,
+  B01111111,
+  B01111001,
+  B01001111,
+  B01110110,
+  B00110000,
+
+  B00001110,
+  B00111111,
+  B01110001,
+  B01000111,
+  B01111110,
+  B00111000,
+
+  B00000010,
+  B00110011,
+  B01111001,
+  B01001111,
+  B01100110,
+  B00100000,
+  
+  B00001111,
+  B01111111,
+  B01111001,
+  B01001001,
+  B01000000,
+  B01000000,
+  B01000000,
+  B01000000
+};
+
+const byte iconVolume[] = {
+/*  B00000111,
+  B00000111,
+  B00000000,
+  B00001111,
+  B00001111,
+  B00000000,
+  B00011111,
+  B00011111*/
+  B00011100,
+  B00011100,
+  B00100010,
+  B01000001,
+  B01111111,
+  B00000000,
+//  B00100010,
+  B00000000,
+//  B00011100
+  B00000000
+};
+
 const byte number[][3] = { 
   { 14, 17, 14}, //0
   {  0, 31,  0}, //1
@@ -85,7 +148,47 @@ void animWifi(){
   }
 }
 
-void MatrixShow(){
+void MatrixShowVolume(){
+  byte vol_unite = volume % 10;
+  byte vol_dixaine = (volume/10)%10;
+
+  screen[15] = iconVolume[0];
+  screen[14] = iconVolume[1];
+  screen[13] = iconVolume[2];
+  screen[12] = iconVolume[3];
+  screen[11] = iconVolume[4];
+  screen[10] = iconVolume[5];
+  screen[ 9] = iconVolume[6];
+  screen[ 8] = iconVolume[7];
+  screen[ 7] = 0;
+  screen[ 6] = number[vol_dixaine][0]<<1;
+  screen[ 5] = number[vol_dixaine][1]<<1;
+  screen[ 4] = number[vol_dixaine][2]<<1;
+  screen[ 3] = 0;
+  screen[ 2] = number[vol_unite][0]<<1;
+  screen[ 1] = number[vol_unite][1]<<1;
+  screen[ 0] = number[vol_unite][2]<<1;
+}
+
+void MatrixShowBose(){
+  byte tmp;
+  if (animBosePos < sizeof(animBose)+16){
+    for (byte i=0; i<16; i++){
+      tmp = animBosePos-i;
+      if (tmp<0 || tmp>=sizeof(animBose))
+        screen[i] = 0;
+      else
+        screen[i] = animBose[tmp];
+    }
+    animBosePos++;
+  }
+  else{
+    animBosePos = 0;
+    showAnimBose = 0;
+  }
+}
+
+void MatrixShowTime(){
   int pacmanPos;
   time_t t = now();
   byte min_unite = minute(t) % 10;
@@ -94,22 +197,22 @@ void MatrixShow(){
   byte hour_dixaine = (hour(t)/10)%10;
   byte sec = second(t);
   
-  screen[15] = number[hour_dixaine][0];
-  screen[14] = number[hour_dixaine][1];
-  screen[13] = number[hour_dixaine][2];
-  screen[12] = 0;
-  screen[11] = number[hour_unite][0];
-  screen[10] = number[hour_unite][1];
-  screen[ 9] = number[hour_unite][2];
-  screen[ 8] = 0;
-  screen[ 7] = number[min_dixaine][0];
-  screen[ 6] = number[min_dixaine][1];
-  screen[ 5] = number[min_dixaine][2];
-  screen[ 4] = 0;
-  screen[ 3] = number[min_unite][0];
-  screen[ 2] = number[min_unite][1];
-  screen[ 1] = number[min_unite][2];
-  screen[ 0] = 0;
+  screen[15] = (error && (myTicks<3))?B00100000:0;
+  screen[14] = number[hour_dixaine][0];
+  screen[13] = number[hour_dixaine][1];
+  screen[12] = number[hour_dixaine][2];
+  screen[11] = 0;
+  screen[10] = number[hour_unite][0];
+  screen[ 9] = number[hour_unite][1];
+  screen[ 8] = number[hour_unite][2];
+  screen[ 7] = 0;
+  screen[ 6] = number[min_dixaine][0];
+  screen[ 5] = number[min_dixaine][1];
+  screen[ 4] = number[min_dixaine][2];
+  screen[ 3] = 0;
+  screen[ 2] = number[min_unite][0];
+  screen[ 1] = number[min_unite][1];
+  screen[ 0] = number[min_unite][2];
 
   if (sec == 57 && myTicks == 5)
     animPacmanPos = 0;
@@ -124,22 +227,45 @@ void MatrixShow(){
   if (animPacmanIndex==0)
     animPacmanPos++;
   
-  screen[15] += 64*(sec>15 && sec<46)+128*(sec>0 && sec<31);
-  screen[14] += 64*(sec>16 && sec<47)+128*(sec>1 && sec<32);
-  screen[13] += 64*(sec>17 && sec<48)+128*(sec>2 && sec<33);
-  screen[12] += 64*(sec>18 && sec<49)+128*(sec>3 && sec<34);
-  screen[11] += 64*(sec>19 && sec<50)+128*(sec>4 && sec<35);
-  screen[10] += 64*(sec>20 && sec<51)+128*(sec>5 && sec<36);
-  screen[ 9] += 64*(sec>21 && sec<52)+128*(sec>6 && sec<37);
-  screen[ 8] += 64*(sec>22 && sec<53)+128*(sec>7 && sec<38);
-  screen[ 7] += 64*(sec>23 && sec<54)+128*(sec> 8 && sec<39);
-  screen[ 6] += 64*(sec>24 && sec<55)+128*(sec> 9 && sec<40);
-  screen[ 5] += 64*(sec>25 && sec<56)+128*(sec>10 && sec<41);
-  screen[ 4] += 64*(sec>26 && sec<57)+128*(sec>11 && sec<42);
-  screen[ 3] += 64*(sec>27 && sec<58)+128*(sec>12 && sec<43);
-  screen[ 2] += 64*(sec>28 && sec<59)+128*(sec>13 && sec<44);
-  screen[ 1] += 64*(sec>29 && sec<60)+128*(sec>14 && sec<45);
-  //screen[ 0] += 0;
+  //screen[15] += 0;
+  screen[14] += 64*(sec>15 && sec<46)+128*(sec>0 && sec<31);
+  screen[13] += 64*(sec>16 && sec<47)+128*(sec>1 && sec<32);
+  screen[12] += 64*(sec>17 && sec<48)+128*(sec>2 && sec<33);
+  screen[11] += 64*(sec>18 && sec<49)+128*(sec>3 && sec<34);
+  screen[10] += 64*(sec>19 && sec<50)+128*(sec>4 && sec<35);
+  screen[ 9] += 64*(sec>20 && sec<51)+128*(sec>5 && sec<36);
+  screen[ 8] += 64*(sec>21 && sec<52)+128*(sec>6 && sec<37);
+  screen[ 7] += 64*(sec>22 && sec<53)+128*(sec>7 && sec<38);
+  screen[ 6] += 64*(sec>23 && sec<54)+128*(sec> 8 && sec<39);
+  screen[ 5] += 64*(sec>24 && sec<55)+128*(sec> 9 && sec<40);
+  screen[ 4] += 64*(sec>25 && sec<56)+128*(sec>10 && sec<41);
+  screen[ 3] += 64*(sec>26 && sec<57)+128*(sec>11 && sec<42);
+  screen[ 2] += 64*(sec>27 && sec<58)+128*(sec>12 && sec<43);
+  screen[ 1] += 64*(sec>28 && sec<59)+128*(sec>13 && sec<44);
+  screen[ 0] += 64*(sec>29 && sec<60)+128*(sec>14 && sec<45);
+}
+
+void MatrixShow(const uint8_t BoseMode = 0){
+  switch(BoseMode){
+    case 1:
+      onBose = ONBOSE_INIT;
+      break;
+    case 2:
+      onBose = ONBOSE_INIT;
+      showAnimBose = 1;
+      break;
+  }
+  
+  if (onBose){
+    if (showAnimBose)
+      MatrixShowBose();
+    else{
+      MatrixShowVolume();
+      onBose--;
+    }
+  }
+  else
+    MatrixShowTime();
 
   sendScreen();
 }
