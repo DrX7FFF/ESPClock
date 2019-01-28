@@ -17,17 +17,12 @@ byte myTicks;
 // #define WIFI_PASSWD "...."
 #define HOSTNAME "CLOCK"
 
-#define DEBUG_PORT 9977
-WiFiServer debugServer(DEBUG_PORT);
-WiFiClient debugClient;
-
 //#define BOSEMON_NAME "BOSEMON"
 #define BOSEMON_NAME "PORTABLE"
 #define BOSEMON_PORT 9978
 WiFiClient boseClient;
 const char* boseName = "Portable";
 
-// Enter the IP address of the server you're connecting to:
 //IPAddress boseIP(192, 168, 1, 23); //Portable
 IPAddress boseIP(192, 168, 1, 99);
 
@@ -52,8 +47,6 @@ void setup() {
   animwifiIndex = 2;
   animWifi();
 
-  debugServer.begin();
-
   NTP.begin("pool.ntp.org", 1, true);
   NTP.setInterval(30,3600);
 
@@ -71,12 +64,6 @@ void loop() {
   uint8_t boseVolumeChange;
   uint8_t recvBuf[3];
   ArduinoOTA.handle();
-
-  if(!debugClient.connected()) { // if client not connected
-    debugClient = debugServer.available(); // wait for it to connect
-    if (debugClient.connected())
-      debugClient.println("Welcome on Debug");
-  }
 
   if (!boseClient.connected() || ( millis() - previousMillis > WATCHDOG )) {
     boseClient.stop();
