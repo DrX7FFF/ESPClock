@@ -2,8 +2,10 @@
 // Version Noire OTA : generic module / 80 Mhz / QIO / 40 MHz / 1M (0kb) / 230400
 byte myTicks;
 
+// Librarie de carte ESP 2.4.2
 // Attention!!!
-// Ajouter la bibliothéque : NTPClientLib by German Martin
+// Ajouter la bibliothéque : NTPClientLib by German Martin : Version Branche développement 3.0.0beta - 4 janvier 2019 (après la 2.5.1) 
+// Besoin de la librairie : me-no-dev/ESPAsyncUDP : Version 1.0.0 - 14 juillet 2016
 
 #include <Ticker.h>
 #include <ESP8266WiFi.h>
@@ -17,6 +19,11 @@ byte myTicks;
 // #define WIFI_PASSWD "...."
 #define HOSTNAME "CLOCK"
 
+#define LISTEN_PORT 9978
+WiFiServer server(LISTEN_PORT);
+WiFiClient clientCur;
+
+/*
 //#define BOSEMON_NAME "BOSEMON"
 #define BOSEMON_NAME "PORTABLE"
 #define BOSEMON_PORT 9978
@@ -25,7 +32,7 @@ const char* boseName = "Portable";
 
 //IPAddress boseIP(192, 168, 1, 23); //Portable
 IPAddress boseIP(192, 168, 1, 99);
-
+*/
 void myeventtick(){
   myTicks = (myTicks+1) % 10;
   MatrixShow();
@@ -52,19 +59,33 @@ void setup() {
 
   ArduinoOTA.setHostname(HOSTNAME);
   ArduinoOTA.begin();
+
+  server.begin();
   
   myTick.attach_ms(100, myeventtick);
 }
 
-#define WATCHDOG 30000
-unsigned long previousMillis;
+//#define WATCHDOG 30000
+//unsigned long previousMillis;
+uint8_t recvBuf[3];
 
 void loop() {
-  uint8_t bosePowerChange;
-  uint8_t boseVolumeChange;
-  uint8_t recvBuf[3];
+//  uint8_t bosePowerChange;
+//  uint8_t boseVolumeChange;
   ArduinoOTA.handle();
 
+  //Nouvelle connexion remplace l'ancienne
+  WiFiClient clientNew = server.available();
+  if(clientNew){
+    if (clientCur && clientCur.connected())
+      clientCur.stop();
+    clientCur = clientNew;
+    clientCur.print("Started for (ms) :");
+    clientCur.println(millis());
+    clientCur.println(ESP.getResetReason());
+  }
+  
+/*
   if (!boseClient.connected() || ( millis() - previousMillis > WATCHDOG )) {
     boseClient.stop();
 //    connected2Bose = boseClient.connect(boseName, BOSEMON_PORT);
@@ -99,6 +120,6 @@ void loop() {
       previousMillis = millis();
     }
   }
-
+*/
   delay(10);
 }
