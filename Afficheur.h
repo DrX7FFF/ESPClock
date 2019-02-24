@@ -129,8 +129,7 @@ void MatrixShowTime(){
   byte hour_dixaine = hour(t)/10;
   byte sec          = second(t);
   
-//  screen[15] = ((connected2Bose==0) && (myTicks<2) || ((boseError!=0) && (myTicks<5)) || ((connected2Bose!=0) && (boseError==0) && (boseOn!=0)))?B00100000:0;
-  screen[15] = 0;
+  screen[15] = ((connected2Bose==0) && (myTicks<2) || ((boseError!=0) && (myTicks<5)) || ((connected2Bose!=0) && (boseError==0) && (boseOn!=0)))?B00100000:0;
   screen[14] = number[hour_dixaine][0];
   screen[13] = number[hour_dixaine][1];
   screen[12] = number[hour_dixaine][2];
@@ -179,7 +178,6 @@ void MatrixShowTime(){
 }
 
 void MatrixShow(const uint8_t BoseMode = 0){
-/*
   switch(BoseMode){
     case 1:
       onBose = ONBOSE_INIT;
@@ -204,8 +202,7 @@ void MatrixShow(const uint8_t BoseMode = 0){
     sendByte2 (MAX7219_REG_INTENSITY, INTENSITY, INTENSITY);
     MatrixShowTime();
   }
-*/
-    MatrixShowTime();
+  
   sendScreen();
 }
 

@@ -23,7 +23,6 @@ byte myTicks;
 WiFiServer server(LISTEN_PORT);
 WiFiClient clientCur;
 
-/*
 //#define BOSEMON_NAME "BOSEMON"
 #define BOSEMON_NAME "PORTABLE"
 #define BOSEMON_PORT 9978
@@ -32,7 +31,7 @@ const char* boseName = "Portable";
 
 //IPAddress boseIP(192, 168, 1, 23); //Portable
 IPAddress boseIP(192, 168, 1, 99);
-*/
+
 void myeventtick(){
   myTicks = (myTicks+1) % 10;
   MatrixShow();
@@ -65,13 +64,13 @@ void setup() {
   myTick.attach_ms(100, myeventtick);
 }
 
-//#define WATCHDOG 30000
-//unsigned long previousMillis;
+#define WATCHDOG 30000
+unsigned long previousMillis;
 uint8_t recvBuf[3];
 
 void loop() {
-//  uint8_t bosePowerChange;
-//  uint8_t boseVolumeChange;
+  uint8_t bosePowerChange;
+  uint8_t boseVolumeChange;
   ArduinoOTA.handle();
 
   //Nouvelle connexion remplace l'ancienne
@@ -85,7 +84,7 @@ void loop() {
     clientCur.println(ESP.getResetReason());
   }
   
-/*
+
   if (!boseClient.connected() || ( millis() - previousMillis > WATCHDOG )) {
     boseClient.stop();
 //    connected2Bose = boseClient.connect(boseName, BOSEMON_PORT);
@@ -120,6 +119,5 @@ void loop() {
       previousMillis = millis();
     }
   }
-*/
   delay(10);
 }
