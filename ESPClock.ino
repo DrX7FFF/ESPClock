@@ -33,6 +33,10 @@ const char* boseName = "Portable";
 IPAddress boseIP(192, 168, 1, 99);
 
 void myeventtick(){
+  // Attente de la première synchro
+  if (NTP.getLastNTPSync() == 0)
+    return;
+
   myTicks = (myTicks+1) % 10;
   MatrixShow();
 }
@@ -42,10 +46,12 @@ Ticker myTick;
 void setup() {
   MatrixInit();
   animWifi();
-  // Set WiFi to station mode and disconnect from an AP if it was previously connected
+
   WiFi.mode(WIFI_STA);
   WiFi.hostname(HOSTNAME);
   WiFi.begin(WIFI_SSID, WIFI_PASSWD);
+
+  //on ne fait rien tant que pas connecté une première fois
   while (WiFi.status() != WL_CONNECTED) {
     delay(100);
     animWifi();
@@ -53,8 +59,9 @@ void setup() {
   animwifiIndex = 2;
   animWifi();
 
-  NTP.begin("pool.ntp.org", 1, true);
-  NTP.setInterval(30,3600);
+  NTP.setInterval(10,3600);
+  NTP.begin("pool.ntp.org", 1, 1);
+  NTP.start();
 
   ArduinoOTA.setHostname(HOSTNAME);
   ArduinoOTA.begin();
