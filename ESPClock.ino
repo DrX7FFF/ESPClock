@@ -11,7 +11,7 @@ byte myTicks;
 #include <ESP8266WiFi.h>
 #include <ArduinoOTA.h>
 #include "Afficheur.h"
-#include <TimeLib.h>
+#include <TimeLib.h> //? Necessaire ?
 #include <NtpClientLib.h>
 
 #include "PrivateWifi.h"
