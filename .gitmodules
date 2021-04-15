@@ -1,0 +1,9 @@
+[submodule "lib/NtpClientLibPerso"]
+	path = lib/NtpClientLibPerso
+	url = https://github.com/DrX7FFF/NtpClientLibPerso.git
+[submodule "lib/Time"]
+	path = lib/Time
+	url = https://github.com/PaulStoffregen/Time.git
+[submodule "lib/ESPAsyncUDP"]
+	path = lib/ESPAsyncUDP
+	url = https://github.com/me-no-dev/ESPAsyncUDP.git
